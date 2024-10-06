@@ -21,4 +21,9 @@ class Team extends Model
     {
         return $this->hasMany(Matchs::class, 'away_team_id');
     }
+
+    public function getAllTeams(){
+        return $this->team->all();
+    }
+
 }
