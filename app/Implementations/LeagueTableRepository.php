@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Implementations;
 
 use App\Models\LeagueTable;
@@ -24,15 +25,17 @@ class LeagueTableRepository implements LeagueTableRepositoryInterface
     public function getOrCreate($week, $teams)
     {
         $league = $this->checkLeagueTable($teams, $week);
-       
+
         return $league;
     }
 
 
-    public function checkLeagueTable($teams, $week){
-        Log::info('Week: ' . $week);
+    public function checkLeagueTable($teams, $week)
+    {
+
         $league = $this->leagueTable->with('team')->where('weekly', $week)->get();
-        if($league->count() == 0){
+
+        if ($league->count() == 0) {
             foreach ($teams as $key => $value) {
                 $goalsFor = rand(0, 15);
                 $goalsAgainst = rand(0, 20);
@@ -48,19 +51,48 @@ class LeagueTableRepository implements LeagueTableRepositoryInterface
                 ];
                 $this->leagueTable->create($payload);
             }
-
         }
+
         $league = $this->leagueTable->with('team')->where('weekly', (int)$week)->get();
-        // dd($league);
+
         return $league;
     }
 
 
-    public function getOrderedTable()
+    public function getChampionShipByWeek($week)
     {
-        return $this->leagueTable->with('team')
-            ->orderBy('points', 'desc')
-            ->orderBy('goal_difference', 'desc')
-            ->get();
+        $league = $this->leagueTable->with('team')->where('weekly', '<', (int)$week + 1)->get();
+
+        $teamStatistics = [];
+        $final_stats = [];
+
+        foreach ($league as $match) {
+            $teamId = $match['team_id'];
+
+            if (!isset($teamStatistics[$teamId])) {
+                $teamStatistics[$teamId] = [
+                    'name' => $match['team']['name'],
+                    'matches_played' => 0,
+                    'wins' => 0,
+                ];
+            }
+
+            $teamStatistics[$teamId]['matches_played'] += $match['matches_played'];
+            $teamStatistics[$teamId]['wins'] += $match['wins'];
+        }
+
+        foreach ($teamStatistics as $teamId => $stats) {
+            $winRate = $stats['wins'] / $stats['matches_played'] * 100;
+            array_push($final_stats, [
+                'name' => $stats['name'],
+                'value' => round($winRate, 2)
+            ]);
+
+        }
+
+
+
+
+        return $final_stats;
     }
 }

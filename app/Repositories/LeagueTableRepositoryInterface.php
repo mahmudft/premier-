@@ -8,4 +8,5 @@ interface LeagueTableRepositoryInterface
 {
     public function getOrCreate($week, $teams);
     public function checkLeagueTable($teams, $week);
+    public function getChampionShipByWeek($week);
 }
