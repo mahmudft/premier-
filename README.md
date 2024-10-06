@@ -40,3 +40,19 @@ php artisan migrate && php artisan db:seed --class=TeamsSeeder
 
 Now Open 
 - http://localhost:8000
+
+
+Extras--
+
+If you want to change frontend 
+
+first install frontend dependencies 
+npm install 
+
+Do Changes in
+resources/js/components
+
+
+Build the solution
+
+npm run build 
