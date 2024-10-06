@@ -42,17 +42,20 @@ Now Open
 - http://localhost:8000
 
 
+For Tests 
+- php artisan test
+
 Extras--
 
 If you want to change frontend 
 
 first install frontend dependencies 
-npm install 
+- npm install 
 
 Do Changes in
-resources/js/components
+- resources/js/components
 
 
 Build the solution
 
-npm run build 
+- npm run build 
