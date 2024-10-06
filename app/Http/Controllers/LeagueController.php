@@ -28,21 +28,48 @@ class LeagueController extends Controller
     {
         $teams = $this->teamRepo->all();
 
-        if ($teams->count() < 2) {
-            return response()->json(['error' => 'Not enough teams to generate fixtures.'], 400);
+        if ($teams->count() != 4) {
+            return response()->json(['error' => 'There must be exactly 4 teams to generate fixtures.'], 400);
         }
 
+        $matches = [];
         $week = 1;
-        foreach ($teams as $homeTeam) {
-            foreach ($teams as $awayTeam) {
-                if ($homeTeam->id != $awayTeam->id) {
-                    // Create a new match
-                    $this->matchRepo->create([
-                        'home_team_id' => $homeTeam->id,
-                        'away_team_id' => $awayTeam->id,
-                        'week' => $week++
-                    ]);
-                }
+
+        // Generate round-robin home and away matches
+        for ($i = 0; $i < $teams->count(); $i++) {
+            for ($j = $i + 1; $j < $teams->count(); $j++) {
+                // Home and away matches
+                $matches[] = [
+                    'home_team_id' => $teams[$i]->id,
+                    'away_team_id' => $teams[$j]->id,
+                    'week' => $week,
+                ];
+                $matches[] = [
+                    'home_team_id' => $teams[$j]->id,
+                    'away_team_id' => $teams[$i]->id,
+                    'week' => $week,
+                ];
+                $week++;
+            }
+        }
+
+        // Create two matches per week for 5 weeks
+        shuffle($matches); // Randomize match order
+        $currentWeek = 1;
+        foreach ($matches as $index => $match) {
+            $this->matchRepo->create([
+                'home_team_id' => $match['home_team_id'],
+                'away_team_id' => $match['away_team_id'],
+                'week' => $currentWeek,
+            ]);
+
+            // Assign two matches per week
+            if (($index + 1) % 2 == 0) {
+                $currentWeek++;
+            }
+
+            if ($currentWeek > 5) {
+                break;
             }
         }
 
@@ -53,43 +80,37 @@ class LeagueController extends Controller
     public function simulateWeek($week)
     {
         $matches = $this->matchRepo->findByWeek($week);
-
+    
         if ($matches->isEmpty()) {
             return response()->json(['error' => 'No matches for this week.'], 404);
         }
-
+    
         foreach ($matches as $match) {
             $homeTeam = $match->homeTeam;
             $awayTeam = $match->awayTeam;
-
+    
             // Simulate scores based on team strength
-            $match->home_score = rand(0, $homeTeam->strength);
-            $match->away_score = rand(0, $awayTeam->strength);
-            $match->save();
-
+            $homeScore = rand(0, $homeTeam->strength);
+            $awayScore = rand(0, $awayTeam->strength);
+    
+            // Use the repository to update match scores
+            $this->matchRepo->updateScore($match->id, $homeScore, $awayScore);
+    
             // Update league table
-            $this->updateLeagueTable($homeTeam, $awayTeam, $match->home_score, $match->away_score);
+            $this->updateLeagueTable($homeTeam, $awayTeam, $homeScore, $awayScore);
         }
-
+    
         return response()->json(['message' => 'Matches simulated for week ' . $week]);
     }
+    
 
-    private function updateLeagueTable($homeTeam, $awayTeam, $homeScore, $awayScore)
-    {
-        // Update home team table
-        $homeTeamTableData = $this->calculateTeamTable($homeScore, $awayScore);
-        $this->leagueTableRepo->updateOrCreate($homeTeam->id, $homeTeamTableData);
-
-        // Update away team table
-        $awayTeamTableData = $this->calculateTeamTable($awayScore, $homeScore);
-        $this->leagueTableRepo->updateOrCreate($awayTeam->id, $awayTeamTableData);
-    }
+  
 
     private function calculateTeamTable($goalsFor, $goalsAgainst)
     {
-        // Logic to calculate wins, losses, draws, goal difference, and points
+        // Logic to calculate wins, losses, draws, points, and goal difference
         return [
-            'matches_played' => 1, // Example, adjust this for actual logic
+            'matches_played' => 1, // Increment based on current state
             'wins' => $goalsFor > $goalsAgainst ? 1 : 0,
             'draws' => $goalsFor == $goalsAgainst ? 1 : 0,
             'losses' => $goalsFor < $goalsAgainst ? 1 : 0,
@@ -98,11 +119,16 @@ class LeagueController extends Controller
         ];
     }
 
-    // Show current league table
-    public function showLeagueTable()
-    {
-        $leagueTable = $this->leagueTableRepo->getOrderedTable();
-        return response()->json($leagueTable);
-    }
-}
 
+    // Show current league table
+    public function showLeagueTable($week)
+    {
+        $teams = $this->teamRepo->all();
+        $leagueTable = $this->leagueTableRepo->getOrCreate($week, $teams);
+        return response()->json([
+            'week' => $week,
+            'leagueTable' => $leagueTable, 
+        ]);
+    }
+
+}

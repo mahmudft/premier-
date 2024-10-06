@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class LeagueTable extends Model
 {
     use HasFactory;
-    protected $fillable = ['team_id', 'matches_played', 'wins', 'draws', 'losses', 'points', 'goal_difference'];
+    protected $fillable = ['team_id', 'matches_played', 'wins', 'draws', 'losses', 'points', 'goal_difference', 'weekly'];
 
     public function team()
     {

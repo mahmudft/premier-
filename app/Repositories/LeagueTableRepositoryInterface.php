@@ -6,6 +6,6 @@ use App\Models\LeagueTable;
 
 interface LeagueTableRepositoryInterface
 {
-    public function updateOrCreate($teamId, array $data);
-    public function getOrderedTable();
+    public function getOrCreate($week, $teams);
+    public function checkLeagueTable($teams, $week);
 }

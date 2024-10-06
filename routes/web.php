@@ -11,7 +11,7 @@ Route::get('/generate-fixtures', [LeagueController::class, 'generateFixtures']);
 Route::get('/simulate-week/{week}', [LeagueController::class, 'simulateWeek']);
 
 // Route to view current league table
-Route::get('/league-table', [LeagueController::class, 'showLeagueTable']);
+Route::get('/league-table/{week}', [LeagueController::class, 'showLeagueTable']);
 
 Route::get('/', function () {
     return view('welcome');

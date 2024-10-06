@@ -23,4 +23,14 @@ class MatchRepository implements MatchRepositoryInterface
     {
         return $this->match->create($data);
     }
+
+    public function updateScore($matchId, $homeScore, $awayScore) // Implement this method
+    {
+        $match = $this->match->find($matchId);
+        $match->home_score = $homeScore;
+        $match->away_score = $awayScore;
+        $match->save();
+
+        return $match;
+    }
 }

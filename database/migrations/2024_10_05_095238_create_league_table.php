@@ -20,6 +20,7 @@ return new class extends Migration
             $table->integer('losses')->default(0);
             $table->integer('points')->default(0);
             $table->integer('goal_difference')->default(0);
+            $table->integer('weekly');
             $table->timestamps();
         });
     }
