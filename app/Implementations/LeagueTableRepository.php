@@ -45,7 +45,7 @@ class LeagueTableRepository implements LeagueTableRepositoryInterface
                     'wins' => $goalsFor > $goalsAgainst ? 1 : 0,
                     'draws' => $goalsFor == $goalsAgainst ? 1 : 0,
                     'losses' => $goalsFor < $goalsAgainst ? 1 : 0,
-                    'points' => $goalsFor > $goalsAgainst ? 3 : ($goalsFor == $goalsAgainst ? 1 : 0),
+                    'points' => $goalsFor > $goalsAgainst ? 3 : ($goalsFor == $goalsAgainst ? 1 : rand(1, 6)),
                     'goal_difference' => $goalsFor - $goalsAgainst,
                     'weekly' => (int)$week,
                 ];
