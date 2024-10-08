@@ -2,46 +2,41 @@
 
 namespace App\Http\Controllers;
 
-use App\Repositories\TeamRepositoryInterface;
-use App\Repositories\MatchRepositoryInterface;
-use App\Repositories\LeagueTableRepositoryInterface;
+use Illuminate\Http\JsonResponse;
+use App\Services\{LeagueService, MatchService, TeamService};
 
 class LeagueController extends Controller
 {
     protected $teamRepo;
-    protected $matchRepo;
-    protected $leagueTableRepo;
+    protected $matchService;
+    protected $leagueService;
 
     public function __construct(
-        TeamRepositoryInterface $teamRepo,
-        MatchRepositoryInterface $matchRepo,
-        LeagueTableRepositoryInterface $leagueTableRepo
+        MatchService $matchService,
+        LeagueService $leagueService
     ) {
-        $this->teamRepo = $teamRepo;
-        $this->matchRepo = $matchRepo;
-        $this->leagueTableRepo = $leagueTableRepo;
-    }
-    
-
-    public function simulateChampionshipByWeek($week){
-        $statistics = $this->leagueTableRepo->getChampionShipByWeek($week);
-       return response()->json($statistics);
-
+        $this->matchService = $matchService;
+        $this->leagueService = $leagueService;
     }
 
 
-    public function simulateMatchByWeek($week)
+    public function simulateChampionshipByWeek(int $week): JsonResponse
     {
-        $matches = $this->matchRepo->createOrGetMatchByWeek($week);
+        $statistics = $this->leagueService->getChampionShipByWeek($week);
+        return response()->json($statistics);
+    }
+
+
+    public function simulateMatchByWeek(int $week): JsonResponse
+    {
+        $matches = $this->matchService->createOrGetMatchByWeek($week);
         return response()->json($matches);
     }
-    
 
-    public function showLeagueTable($week)
+
+    public function showLeagueTable(int $week): JsonResponse
     {
-        $teams = $this->teamRepo->all();
-        $leagueTable = $this->leagueTableRepo->getOrCreate($week, $teams);
+        $leagueTable = $this->leagueService->checkLeagueTable($week);
         return response()->json($leagueTable);
     }
-
 }
