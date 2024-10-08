@@ -11,7 +11,7 @@ class LeagueTable extends Model
     use HasFactory;
     protected $fillable = ['team_id', 'matches_played', 'wins', 'draws', 'losses', 'points', 'goal_difference', 'weekly'];
 
-    public function team()
+    public function team(): BelongsTo
     {
         return $this->belongsTo(Team::class);
     }
