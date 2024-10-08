@@ -4,8 +4,7 @@ namespace App\Implementations;
 
 use App\Models\LeagueTable;
 use App\Repositories\LeagueTableRepositoryInterface;
-
-
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Log;
 
 class LeagueTableRepository implements LeagueTableRepositoryInterface
@@ -17,82 +16,18 @@ class LeagueTableRepository implements LeagueTableRepositoryInterface
         $this->leagueTable = $leagueTable;
     }
 
-    public function getOrC($teamId, array $data)
+    public function createLeague(array $paylaod): LeagueTable
     {
-        return $this->leagueTable->updateOrCreate(['team_id' => $teamId], $data);
+        return $this->leagueTable->create($paylaod);
+    }
+    public function getLeagueTableByWeek(int $week): Collection
+    {
+        return $this->leagueTable->with('team')->where('weekly', $week)->get();
     }
 
-    public function getOrCreate($week, $teams)
+    public function getLeagueTableTillWeek(int $week): Collection
     {
-        $league = $this->checkLeagueTable($teams, $week);
-
-        return $league;
+        return $this->leagueTable->with('team')->where('weekly', '<', $week)->get();
     }
 
-
-    public function checkLeagueTable($teams, $week)
-    {
-
-        $league = $this->leagueTable->with('team')->where('weekly', $week)->get();
-
-        if ($league->count() == 0) {
-            foreach ($teams as $key => $value) {
-                $goalsFor = rand(0, 15);
-                $goalsAgainst = rand(0, 20);
-                $payload = [
-                    'matches_played' => rand(7, 10),
-                    'team_id' => $value['id'],
-                    'wins' => $goalsFor > $goalsAgainst ? 1 : 0,
-                    'draws' => $goalsFor == $goalsAgainst ? 1 : 0,
-                    'losses' => $goalsFor < $goalsAgainst ? 1 : 0,
-                    'points' => $goalsFor > $goalsAgainst ? 3 : ($goalsFor == $goalsAgainst ? 1 : rand(1, 6)),
-                    'goal_difference' => $goalsFor - $goalsAgainst,
-                    'weekly' => (int)$week,
-                ];
-                $this->leagueTable->create($payload);
-            }
-        }
-
-        $league = $this->leagueTable->with('team')->where('weekly', (int)$week)->get();
-
-        return $league;
-    }
-
-
-    public function getChampionShipByWeek($week)
-    {
-        $league = $this->leagueTable->with('team')->where('weekly', '<', (int)$week + 1)->get();
-
-        $teamStatistics = [];
-        $final_stats = [];
-
-        foreach ($league as $match) {
-            $teamId = $match['team_id'];
-
-            if (!isset($teamStatistics[$teamId])) {
-                $teamStatistics[$teamId] = [
-                    'name' => $match['team']['name'],
-                    'matches_played' => 0,
-                    'wins' => 0,
-                ];
-            }
-
-            $teamStatistics[$teamId]['matches_played'] += $match['matches_played'];
-            $teamStatistics[$teamId]['wins'] += $match['wins'];
-        }
-
-        foreach ($teamStatistics as $teamId => $stats) {
-            $winRate = $stats['wins'] / $stats['matches_played'] * 100;
-            array_push($final_stats, [
-                'name' => $stats['name'],
-                'value' => round($winRate, 2)
-            ]);
-
-        }
-
-
-
-
-        return $final_stats;
-    }
 }
