@@ -16,7 +16,6 @@ class LeagueTableRepository implements LeagueTableRepositoryInterface
         $this->leagueTable = $leagueTable;
     }
 
-
     public function createLeague(array $paylaod): LeagueTable
     {
         return $this->leagueTable->create($paylaod);
