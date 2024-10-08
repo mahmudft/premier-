@@ -37,7 +37,6 @@ export default function League() {
     async function loadLeagueTable(week_count = 1) {
         let list = await fetch(`/league-table/${week_count}`);
         let data = await list.json();
-        console.log(data);
         setState((previous) => ({ ...previous, league: data }));
     }
 
@@ -53,15 +52,14 @@ export default function League() {
        if(week_count>=4){
         let list = await fetch(`/simulate-championship/${week_count}`);
         let data = await list.json();
-        console.log(data);
-        setState((previous) => ({ ...previous, championship: data }));
+        let transformData = Object.values(data)
+        setState((previous) => ({ ...previous, championship: transformData }));
        }
     }
 
     async function loadweeklyMatchTable(week_count = 1) {
         let list = await fetch(`/simulate-week/${week_count}`);
         let data = await list.json();
-        console.log(data);
         setState((previous) => ({ ...previous, matches: data }));
     }
 
@@ -154,10 +152,10 @@ export default function League() {
                              </Tr>
                          </Thead>
                          <Tbody>
-                             {state?.championship?.map((matchy) => (
+                             {state?.championship?.map(el => ({...el, value: parseInt((el.value / sum)* 100)})).map((matchy) => (
                                  <Tr>
                                      <Td>{matchy.name}</Td>
-                                     <Td>{parseInt((matchy.value / sum)* 100)}- %</Td>
+                                     <Td>{matchy.value}- %</Td>
                                  </Tr>
                              ))}
                          </Tbody>
