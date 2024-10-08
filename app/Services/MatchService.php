@@ -20,14 +20,10 @@ class MatchService
     {
         $home_score = $match_couple[0]['strength'];
         $away_score = $match_couple[1]['strength'];
-
-        $home_strength = intval(sqrt($match_couple[0]['strength']) / 2);
-        $away_strength = intval(sqrt($match_couple[1]['strength']) / 2);
-
+        $home_strength = intval(sqrt($home_score) / 2);
+        $away_strength = intval(sqrt($away_score) / 2);
         $home = $home_strength;
         $away = $away_strength;
-
-
         if ($home_score > $away_score) {
             $home += 1;
         } elseif ($home_score < $away_score) {
@@ -36,8 +32,6 @@ class MatchService
 
         return ['home' => $home, 'away' => $away];
     }
-
-
 
     public function createRandomMatch(array $match_couple, int $week): void
     {
@@ -68,5 +62,4 @@ class MatchService
         return $matchesByWeek;
     }
 
-}
-;
+};

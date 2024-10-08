@@ -2,7 +2,6 @@
 
 namespace App\Repositories;
 
-use App\Models\Match;
 use App\Models\Matchs;
 use Illuminate\Database\Eloquent\Collection;
 

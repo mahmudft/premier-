@@ -22,7 +22,6 @@ class LeagueService
     {
         $goalsFor = rand(0, 15);
         $goalsAgainst = rand(0, 20);
-
         $payload = [
             'matches_played' => rand(7, 10),
             'team_id' => $team['id'],
@@ -50,7 +49,6 @@ class LeagueService
     {
         $league = $this->leagueRepository->getLeagueTableByWeek($week);
         $teams = $this->teamService->getAllTeams();
-
         if ($league->isEmpty()) {
             foreach ($teams as $team) {
                 $payload = $this->generateRandomLeagueRecord($week, $team);
@@ -67,7 +65,6 @@ class LeagueService
     {
         $league = $this->leagueRepository->getLeagueTableTillWeek($week + 1);
         $teamStatistics = [];
-
         foreach ($league as $match) {
             $teamId = $match['team_id'];
 
@@ -78,7 +75,6 @@ class LeagueService
             $teamStatistics[$teamId]['matches_played'] += $match['matches_played'];
             $teamStatistics[$teamId]['wins'] += $match['wins'];
         }
-
         $finalStats = array_map(function (array $stats): TeamStatistic {
             $winRate = $stats['wins'] / $stats['matches_played'] * 100;
 

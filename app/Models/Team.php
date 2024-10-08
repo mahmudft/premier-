@@ -11,7 +11,6 @@ class Team extends Model
 
     protected $fillable = ['name', 'strength'];
 
-    // Relationship with Match model (home and away)
     public function homeMatches()
     {
         return $this->hasMany(Matchs::class, 'home_team_id');
