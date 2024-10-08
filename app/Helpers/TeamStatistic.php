@@ -1,6 +1,7 @@
 <?php 
 
 namespace App\Helpers;
+
 class TeamStatistic
 {
     public $name;
